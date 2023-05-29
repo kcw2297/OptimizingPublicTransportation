@@ -1,5 +1,5 @@
 {
-  "namespace": "com.udacity",
+  "namespace": "schema.arrival.value",
   "name": "arrival.value",
   "type": "record",
   "fields": [
