@@ -8,6 +8,7 @@ from confluent_kafka.avro import AvroProducer
 logger = logging.getLogger(__name__)
 
 
+# [수정] 생성자 안의 로직 분리
 class Producer:
     existing_topics = set([])
 
@@ -34,7 +35,6 @@ class Producer:
             default_value_schema=self.value_schema,
         )
 
-        # [Modify] use static method to handle creating topic
         if self.topic_name not in Producer.existing_topics:
             self.create_topic()
             Producer.existing_topics.add(self.topic_name)

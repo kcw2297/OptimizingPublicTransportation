@@ -8,6 +8,7 @@ from models.producer import Producer
 logger = logging.getLogger(__name__)
 
 
+# [수정] 생성자 안의 로직 분리
 class Station(Producer):
     key_schema = avro.load(f"{Path(__file__).parents[0]}/schemas/arrival_key.json")
     value_schema = avro.load(f"{Path(__file__).parents[0]}/schemas/arrival_value.json")
@@ -39,7 +40,6 @@ class Station(Producer):
         )
 
     def run(self, train, direction, prev_station_id, prev_direction):
-        """Simulates train arrivals at this station"""
         self.producer.produce(
             topic=self.topic_name,
             key={"timestamp": self.time_millis()},
