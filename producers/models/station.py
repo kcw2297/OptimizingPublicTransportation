@@ -44,8 +44,11 @@ class Station(Producer):
             topic=self.topic_name,
             key={"timestamp": self.time_millis()},
             value={
-                "train": train,
+                "station_id": self.station_id,
+                "train_id": train,
                 "direction": direction,
+                "line": self.color.name,
+                "train_status": train.status,
                 "prev_station_id": prev_station_id,
                 "prev_direction": prev_direction,
             },
