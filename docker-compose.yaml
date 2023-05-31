@@ -12,12 +12,13 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_BROKER_ID: 0 // set the unique id to the broker
+      KAFKA_BROKER_ID: 0 # set the unique id to the broker
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181" # address and port to the zookeeper.
       KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka0:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092" # the address and port that the broker will advertise to producers and consumers to connect to.
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL" # 브로커 간의 소통을 위해, INTENAL listener를 사용합니다.
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT" # 보안 프로토콜을 정의합니다.
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1" # 메세지의 개수를 의미합니다. 1은 replica를 생성하지 않습니다.
+      KAFKA_CONNECTIONS_MAX_IDLE_MS: 7200000
     depends_on:
       - "zookeeper"
 
@@ -30,6 +31,7 @@ services:
       SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081" # 스키마 등록소가 listen할 주소와 포트입니다.
       SCHEMA_REGISTRY_HOST_NAME: "schema-registry" # 스키마 등록소 호스트 네임입니다.
       SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: "1" # 스키마 등록소는 카프카 토픽에 스키마를 저장합니다. value 1은 하나의 브로커 안의 토픽에 저장합니다.
+      KAFKASTORE_TIMEOUT_MS: 7200000
     depends_on:
       - "kafka0"
 
@@ -70,6 +72,7 @@ services:
     depends_on:
       - "kafka0"
       - "schema-registry"
+
   ksql:
     image: confluentinc/cp-ksql-server:5.2.2
     ports:
@@ -119,7 +122,7 @@ services:
   postgres:
     image: postgres:11
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_USER: "cta_admin"
       POSTGRES_PASSWORD: "chicago"

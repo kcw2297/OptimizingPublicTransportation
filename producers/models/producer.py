@@ -26,8 +26,8 @@ class Producer:
         self.num_partitions = num_partitions
         self.num_replicas = num_replicas
         self.broker_properties = {
-            "bootstrap.servers": "PLAINTEXT://kafka0:9092,PLAINTEXT://kafka1:9093,PLAINTEXT://kafka2:9094",
-            "schema.registry.url": "http://schema-registry:8081/",
+            "bootstrap.servers": "PLAINTEXT://localhost:9092",
+            "schema.registry.url": "http://localhost:8081/",
         }
         self.producer = AvroProducer(
             self.broker_properties,
@@ -44,7 +44,7 @@ class Producer:
             {"bootstrap.servers": self.broker_properties["bootstrap.servers"]}
         )
         topic_metadata = admin_client.list_topics(timeout=5)
-        if self.topic_name in set(t.topic for t in iter(topic_metadata.topic_values())):
+        if self.topic_name in topic_metadata.topics:
             logger.info(f"{self.topic_name} already exists. Skipping topic creation")
         else:
             futures = admin_client.create_topics(

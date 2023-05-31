@@ -17,6 +17,7 @@ from models import Line, Weather
 logger = logging.getLogger(__name__)
 
 
+# [수정] logger의 사용 여부 조사하기
 class TimeSimulation:
     weekdays = IntEnum("weekdays", "mon tue wed thu fri sat sun", start=0)
     ten_min_frequency = datetime.timedelta(minutes=10)
@@ -56,15 +57,15 @@ class TimeSimulation:
         curr_time = datetime.datetime.utcnow().replace(
             hour=0, minute=0, second=0, microsecond=0
         )
-        logger.info("Beginning simulation, press Ctrl+C to exit at any time")
-        logger.info("loading kafka connect jdbc source connector")
+        print("Beginning simulation, press Ctrl+C to exit at any time")
+        print("loading kafka connect jdbc source connector")
         configure_connector()
 
-        logger.info("beginning cta train simulation")
+        print("beginning cta train simulation")
         weather = Weather(curr_time.month)
         try:
             while True:
-                logger.debug("simulation running: %s", curr_time.isoformat())
+                print("simulation running: %s", curr_time.isoformat())
                 # Send weather on the top of the hour
                 if curr_time.minute == 0:
                     weather.run(curr_time.month)
@@ -72,7 +73,7 @@ class TimeSimulation:
                 curr_time = curr_time + self.time_step
                 time.sleep(self.sleep_seconds)
         except KeyboardInterrupt as e:
-            logger.info("Shutting down")
+            print("Shutting down")
             _ = [line.close() for line in self.train_lines]
 
 
