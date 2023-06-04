@@ -12,7 +12,7 @@ from confluent_kafka import Consumer, KafkaException
 
 def create_consumer():
     conf = {'bootstrap.servers': "PLAINTEXT://localhost:9092", # replace with your server
-            'group.id': "your_group_id", # replace with your group id
+            'group.id': "my_consumer_group", # replace with your group id
             'auto.offset.reset': 'earliest'}
 
     consumer = Consumer(conf)
