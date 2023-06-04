@@ -65,9 +65,6 @@ class TimeSimulation:
             while True:
                 if curr_time.minute == 0:
                     weather.run(curr_time.month)
-                print(f"[분석][simulation] curr_time: {curr_time}")
-                print(f"[분석][simulation] time_step: {self.time_step}")
-                
                 _ = [line.run(curr_time, self.time_step) for line in self.train_lines]
                 curr_time = curr_time + self.time_step
                 time.sleep(self.sleep_seconds)

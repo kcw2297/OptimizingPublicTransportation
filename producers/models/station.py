@@ -41,15 +41,20 @@ class Station(Producer):
         )
 
     def run(self, train, direction, prev_station_id, prev_direction):
+        print(f'[분석][station_run] train: {train}')
+        print(f'[분석][station_run] direction: {direction}')
+        print(f'[분석][station_run] prev_station_id: {prev_station_id}')
+        print(f'[분석][station_run] prev_direction: {prev_direction}')
+
         self.producer.produce(
             topic=self.topic_name,
             key={"timestamp": self.time_millis()},
             value={
-                "station_id": self.station_id,
-                "train_id": train.train_id,
-                "direction": direction,
-                "line": self.color.name,  # [확인] 해당 property 확인
-                "train_status": train.status.name,
+                "station_id": int(self.station_id),
+                "train_id": str(train.train_id),
+                "direction": str(direction),
+                "line": str(self.color.name),  
+                "train_status": str(train.status.name),
                 "prev_station_id": prev_station_id,
                 "prev_direction": prev_direction,
             },

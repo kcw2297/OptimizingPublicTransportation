@@ -41,12 +41,6 @@ class Turnstile(Producer):
 
         num_entries = self.turnstile_hardware.get_entries(timestamp, time_step)
 
-        print(f'[분석][turnstile_run] Start Looping num_entries')
-
-        print(f'[분석][turnstile_run] num_entries : {num_entries}')
-        print(f'[분석][turnstile_run] station_id : {self.station.station_id}')
-        print(f'[분석][turnstile_run] station_name : {self.station.name}')
-        print(f'[분석][turnstile_run] self.station.color.name : {self.station.color.name}')
         for _ in range(num_entries):
             self.producer.produce(
                     topic=self.topic_name,
@@ -57,4 +51,3 @@ class Turnstile(Producer):
                             "line"        : str(self.station.color.name)
                     },
             )
-            print(f'[분석][turnstile_run] {self.station.name} : success produce!!!!!!!!!!')

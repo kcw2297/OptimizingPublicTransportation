@@ -66,23 +66,20 @@ class Line:
         return trains
 
     def run(self, timestamp, time_step):
-        print('[분석][line_run] Begin _advance_turnstiles')
         self._advance_turnstiles(timestamp, time_step)
-        print('[분석][line_run] After _advance_turnstiles!!!!!!!!!!!!!!!')
-        # self._advance_trains()
+        print('[분석][line_run] Begin _advance_trains()!!!!!!!!!!!!!!!')
+        self._advance_trains()
+        print('[분석][line_run] After _advance_trains()!!!!!!!!!!!!!!!')
 
     def close(self):
         """Called to stop the simulation"""
         _ = [station.close() for station in self.stations]
 
     def _advance_turnstiles(self, timestamp, time_step):
-        print(f'[분석][_advance_turnstiles] Start of producing turnstiles events')
         _ = [station.turnstile.run(timestamp, time_step) for station in self.stations]
-        print(f'[분석][_advance_turnstiles] End of producing turnstiles events')
 
 
     def _advance_trains(self):
-        print(f'[분석][_advance_turnstiles] Start of producing Trains events')
         # Find the first b train
         curr_train, curr_index, b_direction = self._next_train()
         self.stations[curr_index].b_train = None
