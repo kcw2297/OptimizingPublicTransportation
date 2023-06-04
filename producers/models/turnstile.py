@@ -21,6 +21,7 @@ class Turnstile(Producer):
         self.turnstile_hardware = TurnstileHardware(station)
 
         STATIONTOPIC = (
+            'turnstile_' +
             station.name.lower()
             .replace("/", "_and_")
             .replace(" ", "_")
@@ -37,13 +38,23 @@ class Turnstile(Producer):
         )
 
     def run(self, timestamp, time_step):
+
         num_entries = self.turnstile_hardware.get_entries(timestamp, time_step)
-        self.producer.produce(
-            topic=self.topic_name,
-            key={"timestamp": self.time_millis()},
-            value={
-                "timestamp": timestamp,
-                "time_step": time_step,
-                "num_entries": num_entries,
-            },
-        )
+
+        print(f'[분석][turnstile_run] Start Looping num_entries')
+
+        print(f'[분석][turnstile_run] num_entries : {num_entries}')
+        print(f'[분석][turnstile_run] station_id : {self.station.station_id}')
+        print(f'[분석][turnstile_run] station_name : {self.station.name}')
+        print(f'[분석][turnstile_run] self.station.color.name : {self.station.color.name}')
+        for _ in range(num_entries):
+            self.producer.produce(
+                    topic=self.topic_name,
+                    key={"timestamp": self.time_millis()},
+                    value={
+                            "station_id"  : int(self.station.station_id),
+                            "station_name": str(self.station.name),
+                            "line"        : str(self.station.color.name)
+                    },
+            )
+            print(f'[분석][turnstile_run] {self.station.name} : success produce!!!!!!!!!!')
