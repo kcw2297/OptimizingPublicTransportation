@@ -70,12 +70,8 @@ class Producer:
                 except Exception as e:
                     logger.error(f"Failed to create topic {self.topic_name}: {e}")
 
-    def time_millis(self):
-        return int(round(time.time() * 1000))
-
     def close(self):
-        """Prepares the producer for exit by cleaning up the producer"""
-        self.producer.flush(timeout=10)
+        self.producer.flush(timeout=10)  # script이 종료되기 전에 카프카 이벤트를 전달시키고 종료합니다.
 
     def time_millis(self):
         """Use this function to get the key for Kafka Events"""

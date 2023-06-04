@@ -1,11 +1,11 @@
-from enum import IntEnum
 import json
 import logging
-from pathlib import Path
 import random
 import urllib.parse
 import requests
 
+from enum import IntEnum
+from pathlib import Path
 from models.producer import Producer
 
 
@@ -29,13 +29,6 @@ class Weather(Producer):
         self.temp = 70.0
 
         WEATHERTOPIC = "weather"
-        super().__init__(
-            WEATHERTOPIC,
-            key_schema=Weather.key_schema,
-            value_schema=Weather.value_schema,
-            num_partitions=1,
-            num_replicas=1,
-        )
 
         if month in Weather.winter_months:
             self.temp = 40.0
@@ -49,6 +42,14 @@ class Weather(Producer):
         if Weather.value_schema is None:
             with open(f"{Path(__file__).parents[0]}/schemas/weather_value.json") as f:
                 Weather.value_schema = json.load(f)
+
+        super().__init__(
+            WEATHERTOPIC,
+            key_schema=Weather.key_schema,
+            value_schema=Weather.value_schema,
+            num_partitions=1,
+            num_replicas=1,
+        )
 
     def _set_weather(self, month):
         mode = 0.0
@@ -64,7 +65,7 @@ class Weather(Producer):
 
         resp = requests.post(
             f"{Weather.rest_proxy_url}/topics/{self.topic_name}",
-            headers={"Content-Type": "application/vnd.kafka.avro.v2+json"},
+            headers={"Content-Type": "application/vnd.kafka.json.v2+json"},
             data=json.dumps(
                 {
                     "key_schema": json.dumps(self.key_schema),
@@ -81,10 +82,14 @@ class Weather(Producer):
                 }
             ),
         )
-        resp.raise_for_status()
 
-        logger.debug(
-            "sent weather data to kafka, temp: %s, status: %s",
-            self.temp,
-            self.status.name,
-        )
+        try :
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            print(f"HTTP request failed: {err}")
+
+        # logger.debug(
+        #     "sent weather data to kafka, temp: %s, status: %s",
+        #     self.temp,
+        #     self.status.name,
+        # )

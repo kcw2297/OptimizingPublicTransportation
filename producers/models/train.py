@@ -7,8 +7,6 @@ logger = logging.getLogger(__name__)
 
 
 class Train:
-    """Defines CTA Train Model"""
-
     status = IntEnum("status", "out_of_service in_service broken_down", start=0)
 
     def __init__(self, train_id, status):

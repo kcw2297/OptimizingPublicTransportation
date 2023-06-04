@@ -1,97 +1,45 @@
-import asyncio
-from dataclasses import dataclass, field
-import json
-import random
+from confluent_kafka.admin import AdminClient
+from confluent_kafka import Consumer, KafkaException
 
-from confluent_kafka import Consumer, Producer
-from confluent_kafka.admin import AdminClient, NewTopic
-from faker import Faker
+# admin_client = AdminClient({"bootstrap.servers": "localhost:9092"})
 
+# cluster_metadata = admin_client.list_topics()
+# topic_metadata = cluster_metadata.topics
 
-faker = Faker()
-
-BROKER_URL = "PLAINTEXT://localhost:9092"
-TOPIC_NAME = "org.udacity.exercise3.purchases"
+# for topic in topic_metadata:
+#     print(topic)
 
 
-@dataclass
-class Purchase:
-    username: str = field(default_factory=faker.user_name)
-    currency: str = field(default_factory=faker.currency_code)
-    amount: int = field(default_factory=lambda: random.randint(100, 200000))
+def create_consumer():
+    conf = {'bootstrap.servers': "PLAINTEXT://localhost:9092", # replace with your server
+            'group.id': "your_group_id", # replace with your group id
+            'auto.offset.reset': 'earliest'}
 
-    def serialize(self):
-        """Serializes the object in JSON string format"""
-        # TODO: Serializer the Purchase object
-        #       See: https://docs.python.org/3/library/json.html#json.dumps
-        return json.dumps(
-            {
-                "username": self.username,
-                "currency": self.currency,
-                "amount": self.amount,
-            }
-        )
+    consumer = Consumer(conf)
+    return consumer
 
+def consume_messages(consumer, topic):
+    consumer.subscribe([topic])
 
-async def produce_sync(topic_name):
-    """Produces data synchronously into the Kafka Topic"""
-    p = Producer({"bootstrap.servers": BROKER_URL})
-
-    # TODO: Write a synchronous production loop.
-    #       See: https://docs.confluent.io/current/clients/confluent-kafka-python/#confluent_kafka.Producer.flush
-    while True:
-        # TODO: Instantiate a `Purchase` on every iteration. Make sure to serialize it before
-        #       sending it to Kafka!
-        p.produce(topic_name, Purchase().serialize())
-        p.flush()
-        # Do not delete this!
-        await asyncio.sleep(0.01)
-
-
-def main():
-    """Checks for topic and creates the topic if it does not exist"""
-    create_topic(TOPIC_NAME)
     try:
-        asyncio.run(produce_consume())
-    except KeyboardInterrupt as e:
-        print("shutting down")
+        while True:
+            msg = consumer.poll(1.0)  # timeout in seconds; adjust accordingly
 
+            if msg is None:
+                continue
+            if msg.error():
+                raise KafkaException(msg.error())
+            else:
+                # Proper message
+                print("Received message: {}".format(msg.value().decode('utf-8')))
 
-async def produce_consume():
-    """Runs the Producer and Consumer tasks"""
-    t1 = asyncio.create_task(produce_sync(TOPIC_NAME))
-    t2 = asyncio.create_task(_consume(TOPIC_NAME))
-    await t1
-    await t2
+    except KeyboardInterrupt:
+        pass
 
-
-async def _consume(topic_name):
-    """Consumes produced messages"""
-    c = Consumer({"bootstrap.servers": BROKER_URL, "group.id": "0"})
-    c.subscribe([topic_name])
-    num_consumed = 0
-    while True:
-        msg = c.consume(timeout=0.001)
-        if msg:
-            num_consumed += 1
-            if num_consumed % 100 == 0:
-                print(f"consumed {num_consumed} messages")
-        else:
-            await asyncio.sleep(0.01)
-
-
-def create_topic(client):
-    """Creates the topic with the given topic name"""
-    client = AdminClient({"bootstrap.servers": BROKER_URL})
-    futures = client.create_topics(
-        [NewTopic(topic=TOPIC_NAME, num_partitions=5, replication_factor=1)]
-    )
-    for _, future in futures.items():
-        try:
-            future.result()
-        except Exception as e:
-            print("exiting production loop")
-
+    finally:
+        # Close down consumer to commit final offsets.
+        consumer.close()
 
 if __name__ == "__main__":
-    main()
+    consumer = create_consumer()
+    consume_messages(consumer, "weather")  # replace with your topic

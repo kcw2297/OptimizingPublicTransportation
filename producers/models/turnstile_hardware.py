@@ -2,11 +2,8 @@ import logging
 import math
 from pathlib import Path
 import random
-
 import pandas as pd
-
 from models.producer import Producer
-
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +13,6 @@ class TurnstileHardware:
     seed_df = None
 
     def __init__(self, station):
-        """Create the Turnstile"""
         self.station = station
         TurnstileHardware._load_data()
         self.metrics_df = TurnstileHardware.seed_df[
@@ -60,7 +56,5 @@ class TurnstileHardware:
         else:
             num_riders = self.sunday_ridership
 
-        # Calculate approximation of number of entries for this simulation step
         num_entries = int(math.floor(num_riders * ratio / total_steps))
-        # Introduce some randomness in the data
         return max(num_entries + random.choice(range(-5, 5)), 0)

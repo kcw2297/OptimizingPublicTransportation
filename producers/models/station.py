@@ -47,7 +47,7 @@ class Station(Producer):
                 "station_id": self.station_id,
                 "train_id": train.train_id,
                 "direction": direction,
-                "line": self.color.name,
+                "line": self.color.name,  # [확인] 해당 property 확인
                 "train_status": train.status.name,
                 "prev_station_id": prev_station_id,
                 "prev_direction": prev_direction,
@@ -80,4 +80,4 @@ class Station(Producer):
     def close(self):
         """Prepares the producer for exit by cleaning up the producer"""
         self.turnstile.close()
-        super(Station, self).close()
+        super(Station, self).close()  # [수정]This is python 2.0 style
