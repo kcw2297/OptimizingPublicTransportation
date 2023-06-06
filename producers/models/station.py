@@ -41,11 +41,6 @@ class Station(Producer):
         )
 
     def run(self, train, direction, prev_station_id, prev_direction):
-        print(f'[분석][station_run] train: {train}')
-        print(f'[분석][station_run] direction: {direction}')
-        print(f'[분석][station_run] prev_station_id: {prev_station_id}')
-        print(f'[분석][station_run] prev_direction: {prev_direction}')
-
         self.producer.produce(
             topic=self.topic_name,
             key={"timestamp": self.time_millis()},

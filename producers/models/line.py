@@ -67,9 +67,7 @@ class Line:
 
     def run(self, timestamp, time_step):
         self._advance_turnstiles(timestamp, time_step)
-        print('[분석][line_run] Begin _advance_trains()!!!!!!!!!!!!!!!')
         self._advance_trains()
-        print('[분석][line_run] After _advance_trains()!!!!!!!!!!!!!!!')
 
     def close(self):
         """Called to stop the simulation"""
