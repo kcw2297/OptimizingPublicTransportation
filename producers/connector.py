@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 KAFKA_CONNECT_URL = "http://localhost:8083/connectors"
 CONNECTOR_NAME = "stationDB"
-
+DOCKERPOSTGRES = "postgres"
 
 def configure_connector():
     connectorGetResponse = requests.get(f"{KAFKA_CONNECT_URL}/{CONNECTOR_NAME}")
@@ -29,7 +29,7 @@ def configure_connector():
                     "value.converter.schemas.enable": "false",
                     "batch.max.rows": "50",  # source를 batch할 최대 행의 수입니다. 한번에 메모리에 적재될 양을 정합니다.
                     "table.whitelist": "stations",
-                    "connection.url": "jdbc:postgresql://postgres:5432/cta",
+                    "connection.url": f"jdbc:postgresql://{DOCKERPOSTGRES}:5432/cta",
                     "connection.user": "cta_admin",
                     "connection.password": "chicago",
                     "mode": "incrementing",
@@ -43,14 +43,9 @@ def configure_connector():
 
     try:
         connectorPostResponse.raise_for_status()
-        print("Post connectorResponse:", connectorPostResponse)
-        print("Post connectorResponse:", connectorPostResponse.content)
     except requests.exceptions.HTTPError as err:
-        print("Post connectorResponse:", connectorPostResponse)
-        print("Post connectorResponse:", connectorPostResponse.content)
         logging.error(f"HTTP error occurred: {err}")
     else:
-        print("Post connectorResponse:", connectorPostResponse)
         print("Post connectorResponse:", connectorPostResponse.content)
 
 

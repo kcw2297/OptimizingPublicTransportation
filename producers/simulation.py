@@ -57,8 +57,7 @@ class TimeSimulation:
         curr_time = datetime.datetime.utcnow().replace(
             hour=0, minute=0, second=0, microsecond=0
         )
-        # print("loading kafka connect jdbc source connector")
-        # configure_connector()
+        configure_connector()
 
         weather = Weather(curr_time.month)
         try:

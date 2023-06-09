@@ -1,65 +1,71 @@
-"""Configures a Kafka Connector for Postgres Station data"""
-import json
+"""Defines trends calculations for stations"""
 import logging
 
-import requests
+import faust
 
 
 logger = logging.getLogger(__name__)
 
 
-KAFKA_CONNECT_URL = "http://localhost:8083/connectors"
-CONNECTOR_NAME = "stations"
+# Faust will ingest records from Kafka in this format
+class Station(faust.Record):
+    stop_id: int
+    direction_id: str
+    stop_name: str
+    station_name: str
+    station_descriptive_name: str
+    station_id: int
+    order: int
+    red: bool
+    blue: bool
+    green: bool
 
-def configure_connector():
-    """Starts and configures the Kafka Connect connector"""
-    logging.debug("creating or updating kafka connect connector...")
 
-    resp = requests.get(f"{KAFKA_CONNECT_URL}/{CONNECTOR_NAME}")
-    if resp.status_code == 200:
-        logging.debug("connector already created skipping recreation")
-        return
+# Faust will produce records to Kafka in this format
+class TransformedStation(faust.Record):
+    station_id: int
+    station_name: str
+    order: int
+    line: str
 
 
-    # Directions: Use the JDBC Source Connector to connect to Postgres. Load the `stations` table
-    # using incrementing mode, with `stop_id` as the incrementing column name.
-    # Make sure to think about what an appropriate topic prefix would be, and how frequently Kafka
-    # Connect should run this connector (hint: not very often!)
+# Define a Faust Stream that ingests data from the Kafka Connect stations topic and
+# places it into a new topic with only the necessary information.
+app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memory://")
+topic = app.topic("postgres_conn_stations", value_type=Station)
+out_topic = app.topic("stations.table", partitions=1)
+table = app.Table(
+    "transformed_station",
+    default=TransformedStation,
+    partitions=1,
+    changelog_topic=out_topic,
+)
 
-    # configuration of the Kafka Connect (JDBC Source Connector to connect to Postgres)
-    resp = requests.post(
-        KAFKA_CONNECT_URL,
-        headers={"Content-Type": "application/json"},
-        data=json.dumps({
-            "name": CONNECTOR_NAME,
-            "config": {
-                "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
-                "key.converter": "org.apache.kafka.connect.json.JsonConverter",
-                "key.converter.schemas.enable": "false",
-                "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-                "value.converter.schemas.enable": "false",
-                "batch.max.rows": "500",
-                "connection.url": "jdbc:postgresql://localhost:5432/cta",
-                "connection.user": "cta_admin",
-                "connection.password": "chicago",
-                "table.whitelist": "stations",
-                "mode": "incrementing",
-                "incrementing.column.name": "stop_id",
-                "topic.prefix": "postgre_connect_",
-                "poll.interval.ms": "10000", # TODO: DOUBLE CHECK
-            }
-        }),
-    )
 
-    ## Ensure a healthy response was given
-    resp.raise_for_status()
-    logging.debug("connector created successfully")
+# Using Faust, transform input `Station` records into `TransformedStation` records.
+@app.agent(topic)
+async def transform(stations):
+
+    async for station in stations:
+        
+        if station.red:
+            line = 'red'
+        elif station.blue:
+            line = 'blue'
+        elif station.green:
+            line = 'green'
+        else:
+            logger.debug(f"Can't parse line color with station_id = {station.station_id}")
+            line = ''
+
+        transformed_station = TransformedStation(
+            station_id=station.station_id,
+            station_name=station.station_name,
+            order=station.order,
+            line=line
+        )
+        table[station.id] = transformed_station
 
 
 if __name__ == "__main__":
-    configure_connector()
-
-# https://sup2is.github.io/2020/06/08/kafka-connect-example.html
-# to delete a misconfigured connector :
-# SHELL
-# CURL -X DELETE localhost:8083/connectors/stations
+    app.main()
