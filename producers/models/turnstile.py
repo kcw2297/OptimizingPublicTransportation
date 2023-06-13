@@ -20,17 +20,10 @@ class Turnstile(Producer):
         self.station = station
         self.turnstile_hardware = TurnstileHardware(station)
 
-        STATIONTOPIC = (
-            'turnstile_' +
-            station.name.lower()
-            .replace("/", "_and_")
-            .replace(" ", "_")
-            .replace("-", "_")
-            .replace("'", "")
-        )
+        TURNSTILETOPIC = 'turnstileRawData'
 
         super().__init__(
-            STATIONTOPIC,
+            TURNSTILETOPIC,
             key_schema=Turnstile.key_schema,
             value_schema=Turnstile.value_schema,
             num_partitions=1,

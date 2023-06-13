@@ -1,18 +1,17 @@
+# Libraries
 import datetime
 import time
-from enum import IntEnum
 import logging
 import logging.config
-from pathlib import Path
-
 import pandas as pd
-
-# Import logging before models to ensure configuration is picked up
-logging.config.fileConfig(f"{Path(__file__).parents[0]}/logging.ini")
-
+from pathlib import Path
+from enum import IntEnum
+# Local Modules
 from connector import configure_connector
 from models import Line, Weather
 
+# Import logging before models to ensure configuration is picked up
+logging.config.fileConfig(f"{Path(__file__).parents[0]}/logging.ini")
 
 logger = logging.getLogger(__name__)
 
@@ -57,13 +56,16 @@ class TimeSimulation:
         curr_time = datetime.datetime.utcnow().replace(
             hour=0, minute=0, second=0, microsecond=0
         )
+        print('[분석][simulation_run] connector configure 시작')
         configure_connector()
-
+        print('[분석][simulation_run] weather topic creation')
         weather = Weather(curr_time.month)
         try:
             while True:
                 if curr_time.minute == 0:
+                    print('[분석][simulation_run] weather run 시작')
                     weather.run(curr_time.month)
+                print('[분석][simulation_run] line run => turnstile/station 시작')
                 _ = [line.run(curr_time, self.time_step) for line in self.train_lines]
                 curr_time = curr_time + self.time_step
                 time.sleep(self.sleep_seconds)

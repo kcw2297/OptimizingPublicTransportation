@@ -7,6 +7,7 @@ services:
       - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: "2181" # set the zookeeper port on the env variable.
+
   kafka0: # open the broker on port 9092. kafka client can connect to that port.
     image: confluentinc/cp-kafka:5.2.2
     ports:
