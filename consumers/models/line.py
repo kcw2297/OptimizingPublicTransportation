@@ -56,20 +56,18 @@ class Line:
 
     def process_message(self, message):
         """Given a kafka message, extract data"""
-        topic_name = message.topic()
-
-        if topic_name == "station_faust": #faust sink topic
+        
+        if "station_faust" in message.topic(): #faust sink topic
             try:
-                value = json.loads(message.value())
+                value = message.value()
                 self._handle_station(value)
             except Exception as e:
                 logger.fatal("bad station? %s, %s", value, e)
         #[수정] 토픽 이름 조사
-        elif topic_name == "arrivals": 
+        elif "arrivals" in message.topic(): 
             self._handle_arrival(message)
-        #[수정] TURNSTILE_SUMMARY 인지 확인
-        elif topic_name == "turnstile_summary":  
-            json_data = json.loads(message.value())
+        elif "TURNSTILE_SUMMARY " in message.topic():  
+            json_data = message.value()
             station_id = json_data.get("STATION_ID")
             station = self.stations.get(station_id)
             if station is None:
