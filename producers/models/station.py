@@ -24,7 +24,7 @@ class Station(Producer):
         self.turnstile = Turnstile(self)
 
         STATIONTOPIC = (
-            'station_' +
+            'arrival_' +
             self.name.lower()
             .replace("/", "_and_")
             .replace(" ", "_")

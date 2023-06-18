@@ -5,7 +5,7 @@ from confluent_kafka import Consumer
 from confluent_kafka.avro import AvroConsumer
 from confluent_kafka.avro.serializer import SerializerError
 from tornado import gen
-
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +39,13 @@ class KafkaConsumer:
             self.consumer = AvroConsumer(self.broker_properties)
         else:
             self.consumer = Consumer(self.broker_properties)
-
-        self.consumer.subscribe([self.topic_name_pattern], on_assign=self.on_assign)
+        
+        if self.topic_name_pattern == 'arrival':
+            allTopics = self.consumer.list_topics().topics.keys()
+            arrivalTopics = [topic for topic in allTopics if re.match("arrival_.*", topic)]
+            self.consumer.subscribe(arrivalTopics, on_assign=self.on_assign)
+        else:
+            self.consumer.subscribe([self.topic_name_pattern], on_assign=self.on_assign)
 
     def on_assign(self, consumer, partitions):
         """Callback for when topic assignment takes place"""
@@ -64,9 +69,7 @@ class KafkaConsumer:
       
         message = self.consumer.poll(timeout=self.consume_timeout)
         if message is None:
-            print(f"[분석][consumer]{self.topic_name_pattern} 메시지가 없습니다.")
             return 0
-        print(f'[분석][consumer] {self.topic_name_pattern} polling 메시지: {message}')
         self.message_handler(message)
         return 1
       

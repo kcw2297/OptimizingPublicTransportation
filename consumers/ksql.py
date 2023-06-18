@@ -48,9 +48,7 @@ def execute_statement():
 
     try:
         ksqlPostResponse.raise_for_status()
-        print('[분석][ksql] post 성공')
     except requests.exceptions.HTTPError as err:
-        print('[분석][ksql] post 실패')
         logging.error(f"HTTP error occurred: {err}")
 
 if __name__ == "__main__":

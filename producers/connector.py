@@ -43,9 +43,7 @@ def configure_connector():
 
     try:
         connectorPostResponse.raise_for_status()
-        print('[분석][connector] post 성공')
     except requests.exceptions.HTTPError as err:
-        print('[분석][connector] post 실패')
         logging.error(f"HTTP error occurred: {err}")
 
 

@@ -1,20 +1,24 @@
 from confluent_kafka import Consumer, KafkaException
 import json
+import re
 from confluent_kafka.avro import AvroConsumer
 
-# consumer = AvroConsumer({
-consumer = Consumer({
+consumer = AvroConsumer({
     "bootstrap.servers":"localhost:9092",
     "group.id":"my_group",
     "auto.offset.reset":"earliest",
-    # "schema.registry.url" : "http://localhost:8081"
+    "schema.registry.url" : "http://localhost:8081"
 })
 
 def print_assignment(consumer, partitions):
     print('Assignment:', partitions)
 
 # Subscribe to topic
-consumer.subscribe(["TURNSTILE_SUMMARY"], on_assign=print_assignment) 
+topics = consumer.list_topics().topics.keys()
+filtered_topics = [topic for topic in topics if re.match("arrival_.*", topic)] 
+print(f'[분석][custom] filtertopic: {filtered_topics}')
+
+consumer.subscribe(filtered_topics, on_assign=print_assignment) 
 
 try:
     while True:
@@ -28,8 +32,7 @@ try:
             raise KafkaException(msg.error())
         else:
             print('[분석][custom] 메시지를 받았습니다.')
-            # message = msg.value()
-            message = msg.value().decode('utf-8')
+            message = msg.value()
             print('Received message:', message)
 
 except KeyboardInterrupt:

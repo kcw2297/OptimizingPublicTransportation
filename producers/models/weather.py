@@ -12,7 +12,6 @@ from models.producer import Producer
 logger = logging.getLogger(__name__)
 
 
-# [수정] 중복 코드 DRY, 생성자 안의 로직 분리
 class Weather(Producer):
     status = IntEnum(
         "status", "sunny partly_cloudy cloudy windy precipitation", start=0
@@ -57,7 +56,6 @@ class Weather(Producer):
         elif month in Weather.summer_months:
             mode = 1.0
         self.temp += min(max(-20.0, random.triangular(-10.0, 10.0, mode)), 100.0)
-        print(f'[분석][_set_weather] self.temp: {self.temp}')
         self.status = random.choice(list(Weather.status))
 
     def run(self, month):

@@ -25,7 +25,6 @@ class Line:
 
     def _handle_station(self, value):
         """Adds the station to this Line's data model"""
-        print(f'[분석][_handle_station] station을 등록 시작합니다.')
         if value["line"] != self.color:
             return
         self.stations[value["station_id"]] = Station.from_message(value)
@@ -56,14 +55,13 @@ class Line:
         )
 
     def process_message(self, message):
-        if "station_faust" in message.topic(): #faust sink topic
+        if "faust_station" in message.topic(): 
             try:
                 value = json.loads(message.value().decode('utf-8'))
                 self._handle_station(value)
             except Exception as e:
                 logger.fatal("bad station? %s, %s", value, e)
-        #[수정] 토픽 이름 조사
-        elif "arrivals" in message.topic(): 
+        elif "arrival" in message.topic(): 
             self._handle_arrival(message)
         elif "TURNSTILE_SUMMARY" in message.topic():
             value = json.loads(message.value().decode('utf-8'))

@@ -19,10 +19,18 @@ class Lines:
 
     def process_message(self, message):
         """Processes a station message"""
-        if "station" in message.topic():
+        if "arrival" in message.topic():
+            value = message.value()
+            if value["line"] == "green":
+                self.green_line.process_message(message)
+            elif value["line"] == "red":
+                self.red_line.process_message(message)
+            elif value["line"] == "blue":
+                self.blue_line.process_message(message)
+            else:
+                logger.debug("discarding unknown line msg %s", value["line"])
+        elif "station" in message.topic():
             value = json.loads(message.value().decode('utf-8'))
-            # if message.topic() == "org.chicago.cta.stations.table.v1":
-            #     value = json.loads(value)
             if value["line"] == "green":
                 self.green_line.process_message(message)
             elif value["line"] == "red":

@@ -15,8 +15,6 @@ logging.config.fileConfig(f"{Path(__file__).parents[0]}/logging.ini")
 
 logger = logging.getLogger(__name__)
 
-
-# [수정] logger의 사용 여부 조사하기
 class TimeSimulation:
     weekdays = IntEnum("weekdays", "mon tue wed thu fri sat sun", start=0)
     ten_min_frequency = datetime.timedelta(minutes=10)
@@ -56,16 +54,12 @@ class TimeSimulation:
         curr_time = datetime.datetime.utcnow().replace(
             hour=0, minute=0, second=0, microsecond=0
         )
-        print('[분석][simulation_run] connector configure 시작')
         configure_connector()
-        print('[분석][simulation_run] weather topic creation')
         weather = Weather(curr_time.month)
         try:
             while True:
                 if curr_time.minute == 0:
-                    print('[분석][simulation_run] weather run 시작')
                     weather.run(curr_time.month)
-                print('[분석][simulation_run] line run => turnstile/station 시작')
                 _ = [line.run(curr_time, self.time_step) for line in self.train_lines]
                 curr_time = curr_time + self.time_step
                 time.sleep(self.sleep_seconds)

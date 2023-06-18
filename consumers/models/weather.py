@@ -17,13 +17,11 @@ class Weather:
     def process_message(self, message):
         """Handles incoming weather data"""
         try:
-            print(f"[분석][weather] messge: {message}")
             value = message.value()
-            print(f"[분석][weather] value: {value}")
 
             self.temperature = value.get('temperature')
             self.status = value.get('status')
         except Exception as e:
-            print(f"[분석][weather] weather 메시지를 파싱하는데 실패하였습니다.")
+            print(f"fail weather processing")
 
 
