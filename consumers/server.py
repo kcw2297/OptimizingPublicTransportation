@@ -73,17 +73,17 @@ def run_server():
             offset_earliest=True,
             is_avro=False,
         ),
-        KafkaConsumer(
-            "station_*",
-            lines.process_message,
-            offset_earliest=True,
-        ),
-        KafkaConsumer(
-            "TURNSTILE_SUMMARY",
-            lines.process_message,
-            offset_earliest=True,
-            is_avro=False,
-        ),
+        # KafkaConsumer(
+        #     "station_*",
+        #     lines.process_message,
+        #     offset_earliest=True,
+        # ),
+        # KafkaConsumer(
+        #     "TURNSTILE_SUMMARY",
+        #     lines.process_message,
+        #     offset_earliest=True,
+        #     is_avro=False,
+        # ),
     ]
 
     try:

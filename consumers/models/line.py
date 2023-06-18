@@ -59,7 +59,7 @@ class Line:
         
         if "station_faust" in message.topic(): #faust sink topic
             try:
-                value = message.value()
+                value = json.loads(message.value().decode('utf-8'))
                 self._handle_station(value)
             except Exception as e:
                 logger.fatal("bad station? %s, %s", value, e)
