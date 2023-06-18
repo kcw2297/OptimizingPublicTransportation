@@ -25,6 +25,7 @@ class Line:
 
     def _handle_station(self, value):
         """Adds the station to this Line's data model"""
+        print(f'[분석][_handle_station] station을 등록 시작합니다.')
         if value["line"] != self.color:
             return
         self.stations[value["station_id"]] = Station.from_message(value)
@@ -55,8 +56,6 @@ class Line:
         )
 
     def process_message(self, message):
-        """Given a kafka message, extract data"""
-        
         if "station_faust" in message.topic(): #faust sink topic
             try:
                 value = json.loads(message.value().decode('utf-8'))
@@ -66,14 +65,15 @@ class Line:
         #[수정] 토픽 이름 조사
         elif "arrivals" in message.topic(): 
             self._handle_arrival(message)
-        elif "TURNSTILE_SUMMARY " in message.topic():  
-            json_data = message.value()
-            station_id = json_data.get("STATION_ID")
-            station = self.stations.get(station_id)
+        elif "TURNSTILE_SUMMARY" in message.topic():
+            value = json.loads(message.value().decode('utf-8'))
+
+            station_id = value.get("STATION_ID")
+            station = self.stations.get(int(station_id))
             if station is None:
                 logger.debug("unable to handle message due to missing station")
                 return
-            station.process_message(json_data)
+            station.process_message(value)
         else:
             logger.debug(
                 "unable to find handler for message from topic %s", message.topic

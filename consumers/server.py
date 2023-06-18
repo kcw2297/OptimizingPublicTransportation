@@ -62,11 +62,11 @@ def run_server():
 
     # Build kafka consumers
     consumers = [
-        KafkaConsumer(
-            "weather",
-            weather_model.process_message,
-            offset_earliest=True
-        ),
+        # KafkaConsumer(
+        #     "weather",
+        #     weather_model.process_message,
+        #     offset_earliest=True
+        # ),
         KafkaConsumer(
             "station_faust",
             lines.process_message,
@@ -78,12 +78,12 @@ def run_server():
         #     lines.process_message,
         #     offset_earliest=True,
         # ),
-        # KafkaConsumer(
-        #     "TURNSTILE_SUMMARY",
-        #     lines.process_message,
-        #     offset_earliest=True,
-        #     is_avro=False,
-        # ),
+        KafkaConsumer(
+            "TURNSTILE_SUMMARY",
+            lines.process_message,
+            offset_earliest=True,
+            is_avro=False,
+        ),
     ]
 
     try:

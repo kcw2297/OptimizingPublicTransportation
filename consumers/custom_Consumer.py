@@ -14,7 +14,7 @@ def print_assignment(consumer, partitions):
     print('Assignment:', partitions)
 
 # Subscribe to topic
-consumer.subscribe(["station_faust"], on_assign=print_assignment) 
+consumer.subscribe(["TURNSTILE_SUMMARY"], on_assign=print_assignment) 
 
 try:
     while True:

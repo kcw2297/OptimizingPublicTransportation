@@ -20,9 +20,7 @@ class Lines:
     def process_message(self, message):
         """Processes a station message"""
         if "station" in message.topic():
-            print('[분석][lines] 메시지를 받았습니다.')
             value = json.loads(message.value().decode('utf-8'))
-            print(f'[분석][lines] value : {value}')
             # if message.topic() == "org.chicago.cta.stations.table.v1":
             #     value = json.loads(value)
             if value["line"] == "green":
