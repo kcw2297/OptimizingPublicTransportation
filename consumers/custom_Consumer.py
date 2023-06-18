@@ -26,7 +26,8 @@ try:
             print('[분석][weather] 에러 발생')
             raise KafkaException(msg.error())
         else:
-            message = json.loads(msg.value())
+            print('[분석][custome] 메시지를 받았습니다.')
+            message = msg.value()
             print('Received message:', message)
 
 except KeyboardInterrupt:

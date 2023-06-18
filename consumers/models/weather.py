@@ -18,7 +18,7 @@ class Weather:
         """Handles incoming weather data"""
         try:
             print(f"[분석][weather] messge: {message}")
-            value = json.loads(message.value())
+            value = message.value()
             print(f"[분석][weather] value: {value}")
 
             self.temperature = value.get('temperature')
