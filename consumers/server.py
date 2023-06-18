@@ -65,25 +65,25 @@ def run_server():
         KafkaConsumer(
             "weather",
             weather_model.process_message,
-            offset_earliest=True,
+            offset_earliest=True
         ),
-        KafkaConsumer(
-            "station_faust",
-            lines.process_message,
-            offset_earliest=True,
-            is_avro=False,
-        ),
-        KafkaConsumer(
-            "station_*",
-            lines.process_message,
-            offset_earliest=True,
-        ),
-        KafkaConsumer(
-            "TURNSTILE_SUMMARY",
-            lines.process_message,
-            offset_earliest=True,
-            is_avro=False,
-        ),
+        # KafkaConsumer(
+        #     "station_faust",
+        #     lines.process_message,
+        #     offset_earliest=True,
+        #     is_avro=False,
+        # ),
+        # KafkaConsumer(
+        #     "station_*",
+        #     lines.process_message,
+        #     offset_earliest=True,
+        # ),
+        # KafkaConsumer(
+        #     "TURNSTILE_SUMMARY",
+        #     lines.process_message,
+        #     offset_earliest=True,
+        #     is_avro=False,
+        # ),
     ]
 
     try:

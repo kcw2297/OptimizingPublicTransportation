@@ -26,6 +26,7 @@
             </tr>
           </thead>
           <tbody>
+            
             {% for color, line in (("blue", lines.blue_line), ("green", lines.green_line), ("red", lines.red_line)) %}
             {% for station in sorted(line.stations.values(), key=lambda x: x.order) %}
             <tr>

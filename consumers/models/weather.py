@@ -17,10 +17,13 @@ class Weather:
     def process_message(self, message):
         """Handles incoming weather data"""
         try:
+            print(f"[분석][weather] messge: {message}")
             value = json.loads(message.value())
+            print(f"[분석][weather] value: {value}")
+
             self.temperature = value.get('temperature')
             self.status = value.get('status')
         except Exception as e:
-            logger.error(f"Failed to process weather message: {e}")
+            print(f"[분석][weather] weather 메시지를 파싱하는데 실패하였습니다.")
 
 

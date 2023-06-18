@@ -20,16 +20,14 @@ class Weather(Producer):
     rest_proxy_url = "http://localhost:8082"
     key_schema = None
     value_schema = None
-
     winter_months = set((0, 1, 2, 3, 10, 11))
     summer_months = set((6, 7, 8))
+    WEATHERTOPIC = "weather"
 
     def __init__(self, month):
         self.status = Weather.status.sunny
         self.temp = 70.0
-
-        WEATHERTOPIC = "weather"
-
+        
         if month in Weather.winter_months:
             self.temp = 40.0
         elif month in Weather.summer_months:
@@ -39,12 +37,13 @@ class Weather(Producer):
             with open(f"{Path(__file__).parents[0]}/schemas/weather_key.json") as f:
                 Weather.key_schema = json.load(f)
 
+
         if Weather.value_schema is None:
             with open(f"{Path(__file__).parents[0]}/schemas/weather_value.json") as f:
                 Weather.value_schema = json.load(f)
 
         super().__init__(
-            WEATHERTOPIC,
+            Weather.WEATHERTOPIC,
             key_schema=Weather.key_schema,
             value_schema=Weather.value_schema,
             num_partitions=1,
@@ -58,6 +57,7 @@ class Weather(Producer):
         elif month in Weather.summer_months:
             mode = 1.0
         self.temp += min(max(-20.0, random.triangular(-10.0, 10.0, mode)), 100.0)
+        print(f'[분석][_set_weather] self.temp: {self.temp}')
         self.status = random.choice(list(Weather.status))
 
     def run(self, month):
@@ -65,7 +65,7 @@ class Weather(Producer):
 
         resp = requests.post(
             f"{Weather.rest_proxy_url}/topics/{self.topic_name}",
-            headers={"Content-Type": "application/vnd.kafka.json.v2+json"},
+            headers={"Content-Type": "application/vnd.kafka.avro.v2+json"},
             data=json.dumps(
                 {
                     "key_schema": json.dumps(self.key_schema),
@@ -74,8 +74,8 @@ class Weather(Producer):
                         {
                             "key": {"timestamp": self.time_millis()},
                             "value": {
-                                "temperature": self.temp,
-                                "status": self.status,
+                                "temperature": int(self.temp),
+                                "status": str(self.status.name),
                             },
                         }
                     ],
@@ -87,9 +87,3 @@ class Weather(Producer):
             resp.raise_for_status()
         except requests.exceptions.HTTPError as err:
             print(f"HTTP request failed: {err}")
-
-        # logger.debug(
-        #     "sent weather data to kafka, temp: %s, status: %s",
-        #     self.temp,
-        #     self.status.name,
-        # )
