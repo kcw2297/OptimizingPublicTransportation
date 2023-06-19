@@ -69,11 +69,14 @@ class KafkaConsumer:
       
         message = self.consumer.poll(timeout=self.consume_timeout)
         if message is None:
+            print("no message received by consumer, topic:{}".format(self.topic_name_pattern))
             return 0
-        self.message_handler(message)
-        return 1
-      
- 
+        elif message.error():
+            print(f"error from consumer {message.error()}")
+        else:
+            self.message_handler(message)
+            print(f"consumed message {message.key()}: {message.value()}")
+            return 1
 
     def close(self):
         """Cleans up any open kafka consumers"""
